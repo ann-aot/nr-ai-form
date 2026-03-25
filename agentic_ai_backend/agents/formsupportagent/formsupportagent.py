@@ -73,9 +73,12 @@ class FormSupportAgent():
             
         # Append strict JSON formatting rule
         json_enforcement_rule = (
-            "\n\nCRITICAL INSTRUCTION: Your response MUST be valid JSON only. "
+            "\n\nCRITICAL INSTRUCTION: Your response MUST be valid JSON only — on EVERY turn, regardless of conversation history. "
+            "NEVER respond with plain text, explanations, or conversational messages. "
             "NEVER wrap your response in markdown code blocks like ```json ... ```. "
-            "Output raw JSON that can be parsed directly by JSON.parse()."
+            "Output raw JSON that can be parsed directly by JSON.parse(). "
+            "This rule applies to ALL responses including follow-up messages in the thread. "
+            "STRICT: For any field with type 'radio' or 'select', the suggestedvalue MUST be one of the exact values from that field's enum or options list in the form context. Never use a value outside the allowed list."
         )
         final_instructions += json_enforcement_rule
         final_instructions += (
