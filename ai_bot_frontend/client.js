@@ -10,60 +10,65 @@ import {
 } from './guided-questions/utils/guidedQuestionLifecycle.js';
 import { GUIDED_QUESTIONS_STYLES } from './guided-questions/styles/guidedQuestionsStyles.js';
 import { createGuidedQuestionsRenderer } from './guided-questions/ui/guidedQuestionsRenderer.js';
+import { WELCOME_PANEL_STYLES } from './welcome-panel/styles/welcomePanelStyles.js';
+import { buildWelcomePanelHtml, createWelcomePanel } from './welcome-panel/ui/welcomePanel.js';
 
-/**
- * Allow testing of alternative javascript
- * if the browser's local storage has an item 'clientInstance': 'ms'
- * javascript in remote file (see `url`) will be loaded instead
- */
-let clientInstance = localStorage.getItem('clientInstance');
-if (clientInstance === 'ms') {
-    var url = 'https://fastboatsmojito.github.io/nr-ai-form-client-scripts/client-scripts/client.js'
-    var script = document.createElement("script");
-    script.src = url;
-    script.type = "module";
-    document.head.appendChild(script);
-}
-else if (clientInstance === 'aot') {
-    var url = 'https://abin-aot.github.io/nr-ai-form/client-scripts/client.js' // url to aot's javascript
-    var script = document.createElement("script");
-    script.src = url;
-    script.type = "module";
-    document.head.appendChild(script);
-}
-else if (clientInstance === 'aot-ks') {
-    var url = 'https://krishnan-aot.github.io/nr-ai-form/client-scripts/client.js' // url to aot's Krishnan S javascript
-    var script = document.createElement("script");
-    script.src = url;
-    script.type = "module";
-    document.head.appendChild(script);
-}
-else if (clientInstance === 'aot-aj') {
-    var url = 'https://ann-aot.github.io/nr-ai-form/client-scripts/client.js' // url to aot's Ann J javascript
-    var script = document.createElement("script");
-    script.src = url;
-    script.type = "module";
-    document.head.appendChild(script);
-}
-else if (clientInstance === 'css') {
-    var url = 'https://timcsaky.github.io/nr-ai-form/client-scripts/client.js' // url to aot's javascript
-    var script = document.createElement("script");
-    script.src = url;
-    script.type = "module";
-    document.head.appendChild(script);
-}
+// /**
+//  * Allow testing of alternative javascript
+//  * if the browser's local storage has an item 'clientInstance': 'ms'
+//  * javascript in remote file (see `url`) will be loaded instead
+//  */
+// let clientInstance = localStorage.getItem('clientInstance');
+// if (clientInstance === 'ms') {
+//     var url = 'https://fastboatsmojito.github.io/nr-ai-form-client-scripts/client-scripts/client.js'
+//     var script = document.createElement("script");
+//     script.src = url;
+//     script.type = "module";
+//     document.head.appendChild(script);
+// }
+// else if (clientInstance === 'aot') {
+//     var url = 'https://abin-aot.github.io/nr-ai-form/client-scripts/client.js' // url to aot's javascript
+//     var script = document.createElement("script");
+//     script.src = url;
+//     script.type = "module";
+//     document.head.appendChild(script);
+// }
+// else if (clientInstance === 'aot-ks') {
+//     var url = 'https://krishnan-aot.github.io/nr-ai-form/client-scripts/client.js' // url to aot's Krishnan S javascript
+//     var script = document.createElement("script");
+//     script.src = url;
+//     script.type = "module";
+//     document.head.appendChild(script);
+// }
+// else if (clientInstance === 'aot-aj') {
+//     var url = 'https://ann-aot.github.io/nr-ai-form/client-scripts/client.js' // url to aot's Ann J javascript
+//     var script = document.createElement("script");
+//     script.src = url;
+//     script.type = "module";
+//     document.head.appendChild(script);
+// }
+// else if (clientInstance === 'css') {
+//     var url = 'https://timcsaky.github.io/nr-ai-form/client-scripts/client.js' // url to aot's javascript
+//     var script = document.createElement("script");
+//     script.src = url;
+//     script.type = "module";
+//     document.head.appendChild(script);
+// }
 
-else {
+// else {
 
-    (function () {
+//     (function () {
 
         // Feature flag: set to true to re-enable the guided questions UI when ready.
         const GUIDED_QUESTIONS_ENABLED = false;
         const clientId = '11111111-1111-4111-8111-111111111111';
         // TEST: const API_BACKEND_BASE_URL = 'https://nraif-671b-test-api.ambitiousmeadow-949bd8c6.canadacentral.azurecontainerapps.io';
         // DEV : const API_BACKEND_BASE_URL = 'https://nraif-671b-dev-api.icymushroom-bc5ec66d.canadacentral.azurecontainerapps.io';
-        // const API_BACKEND_BASE_URL = 'http://localhost:8003';
-        const API_BACKEND_BASE_URL = 'https://nraif-671b-dev-commonservi-api.livelymushroom-b9ecaae0.canadacentral.azurecontainerapps.io';
+        const API_BACKEND_BASE_URL = 'http://localhost:8003';
+        // dev
+        // const API_BACKEND_BASE_URL = 'https://nraif-671b-dev-commonservi-api.livelymushroom-b9ecaae0.canadacentral.azurecontainerapps.io';
+        // test
+        // const API_BACKEND_BASE_URL = 'https://nraif-671b-test-api.redground-c9aa9e63.canadacentral.azurecontainerapps.io'
 
         const CONVERSATION_HISTORY_API_URL = new URL(`/tenants/${clientId}/history`, API_BACKEND_BASE_URL).toString();
         // const GUIDED_QUESTIONS_API_URL = new URL(`/tenants/${clientId}/guided-questions`, API_BACKEND_BASE_URL).toString();
@@ -1124,20 +1129,7 @@ else {
             gap: 12px;
         }
 
-        .wp-chat-welcome {
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .wp-chat-welcome p {
-            margin: 0;
-        }
-            
-        .wp-chat-welcome p {
-            margin: 0 0 12px 0;
-        }
+        ${WELCOME_PANEL_STYLES}
 
         .wp-chat-message {
             display: flex;
@@ -1267,6 +1259,15 @@ else {
             cursor: pointer;
             font-size: 18px;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wp-chat-send-icon {
+            display: block;
+            width: 20px;
+            height: 20px;
         }
 
         .wp-chat-send-ready, .wp-chat-send:hover {
@@ -1326,22 +1327,7 @@ else {
                 </button>
             </div>
 
-            <div class="wp-chat-messages" id="wp-chat-messages">
-                <div class="wp-chat-welcome">
-                    <div class="wp-chat-welcome">
-                        <p><strong>How I can help</strong></p>
-                        <p>I'm an AI assistant here to support you with your water licence application. 
-                        I can explain terms, clarify what information is needed, and suggest relevant resources based on what you share.
-                        </p>
-                        <p><strong>Disclaimer</strong></p>
-                        <p>I don't provide legal advice and I'm not a substitute for guidance from FrontCounter 
-                        BC staff or qualified professionals. You're responsible for ensuring your submission 
-                        is accurate and complete. Please don't share personal information. 
-                        Your questions may be stored to help improve this service.
-                        By using this assistant, you acknowledge and accept these terms.
-                        </p>
-                    </div>
-                </div>
+            <div class="wp-chat-messages" id="wp-chat-messages">${buildWelcomePanelHtml()}
 
                 <div class="wp-chat-guided-questions" id="wp-chat-guided-questions" aria-live="polite"></div>
             </div>
@@ -1354,8 +1340,10 @@ else {
 
             <div class="wp-chat-input-container">
                 <textarea class="wp-chat-input" id="wp-chat-input" placeholder="Type your message..." rows="1"></textarea>
-                <button class="wp-chat-send" id="wp-chat-send-btn" type="button">
-                <span>?</span>
+                <button class="wp-chat-send" id="wp-chat-send-btn" type="button" aria-label="Send message" title="Send message">
+                <svg class="wp-chat-send-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false">
+                    <path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.996.996 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"></path>
+                </svg>
                 </button>
             </div>
         </div>
@@ -1382,6 +1370,16 @@ else {
                 chatMessages,
                 onQuestionClick: handleGuidedQuestionClick
             });
+
+            // The welcome panel ships in the initial markup and is shown only until the
+            // first message exists — either restored history or a newly sent message.
+            const welcomePanel = createWelcomePanel({
+                chatMessages,
+                onChipClick: (query) => {
+                    sendMessage(query);
+                }
+            });
+
             saveThreadId(sessionId);
             /** We need to save the application ID to sessionStorage at the time the assistant initializes because, 
              * application ID is present in the DOM on the main window but absent in popups. 
@@ -1398,8 +1396,7 @@ else {
 
             function renderHistoryEntries(historyEntries, persist = false) {
                 if (!Array.isArray(historyEntries) || historyEntries.length === 0) return;
-                const welcome = chatMessages.querySelector('.wp-chat-welcome');
-                if (welcome) welcome.remove();
+                welcomePanel.dismiss();
                 historyEntries.forEach((entry) => {
                     if (entry && typeof entry.role === 'string') {
                         appendMessage(entry.role, entry.text ?? '', persist, false);
@@ -1696,6 +1693,9 @@ else {
                 let text = typeof prefilledText === 'string' ? prefilledText.trim() : chatInput.value.trim();
                 if (!text) return;
 
+                // The conversation has started, so the first-open welcome panel is no longer relevant.
+                welcomePanel.dismiss();
+
                 // Add the outgoing user message to the chat immediately so the UI updates
                 // before the network request completes.
                 // placeAfterGuidedQuestions keeps the just-clicked prompt visually below the
@@ -1942,8 +1942,8 @@ else {
                 console.error('Error clearing chat storage:', e);
             }
         }
-    }
-    )();
+//     }
+//     )();
 
-}
+// }
 
