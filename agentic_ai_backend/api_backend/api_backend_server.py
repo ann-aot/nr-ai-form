@@ -7,7 +7,6 @@ from typing import Dict, Optional
 import uvicorn
 from dotenv import load_dotenv
 import uuid
-import ast
 load_dotenv()
 
 from utils.threadmanagement.redisdbutils import redisdbutils
@@ -349,67 +348,26 @@ def _apply_tenant_cors_headers(request: Request, response: Response, allowed_ori
 
 
 async def _get_flattened_history(session_id: str):
-    """Load Redis thread state and flatten stored chat messages for the frontend."""
+    """Load ChatState messages for the frontend history endpoint."""
     db_utils = get_redis_utils()
     try:
-        data = await db_utils.get_thread_state_as_dict(session_id)
-        logger.info(f"data from redis: {data}")
-        if data is None:
-            logger.info(f"No data from redis: {data}")
+        chat_state = await db_utils.get_chat_state(session_id)
+        if chat_state is None:
+            logger.info("No ChatState found for session_id=%s", session_id)
             return []
 
-        messages = data.get("state", {}).get("in_memory", {}).get("messages", []) if isinstance(data, dict) else []
-
-        flattened_history = []
-        logger.info("=============================================================")
-        logger.info(f"messages: {messages}")
-
-        for msg in messages:
-            role = msg.get("role")
-            contents = msg.get("contents", [])
-            text = ""
-
-            # Extract the base text
-            if contents and isinstance(contents, list):
-                for item in contents:
-                    if item.get("type") == "text":
-                        text = item.get("text", "")
-                        break
-
-            # Apply Role-Specific Formatting
-            if text:
-                if role == "user":
-                    # Split by the FIRST colon and take everything after it
-                    if ":" in text:
-                        text = text.split(":", 1)[1]
-
-                elif role == "assistant":
-                    # Check if the text looks like a dictionary/JSON object
-                    text_stripped = text.strip()
-                    if text_stripped.startswith("{") and text_stripped.endswith("}"):
-                        try:
-                            # Attempt standard JSON parse first
-                            parsed_dict = json.loads(text_stripped)
-                            text = parsed_dict.get("response", text)
-                        except json.JSONDecodeError:
-                            try:
-                                # Fallback for stringified Python dicts (single quotes)
-                                parsed_dict = ast.literal_eval(text_stripped)
-                                if isinstance(parsed_dict, dict):
-                                    text = parsed_dict.get("response", text)
-                            except (ValueError, SyntaxError):
-                                # If all parsing fails, gracefully fall back to the raw text
-                                logger.error("Failed to parse history string as JSON")
-                                return []
-
-            # Append the cleaned up payload
-            flattened_history.append({
-                "role": role,
-                "text": text
-            })
-
-        logger.info("=============================================================")
-        logger.info(f"flattened_history: {flattened_history}")
+        flattened_history = [
+            {
+                "role": message.role,
+                "text": message.text,
+            }
+            for message in chat_state.messages
+        ]
+        logger.info(
+            "Loaded ChatState history session_id=%s message_count=%s",
+            session_id,
+            len(flattened_history),
+        )
         return flattened_history
     except Exception as e:
         logger.error(f"Error fetching history for {session_id}: {e}")
