@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 import uuid
 
 
-from threadmanagement.redisdbutils import redisdbutils
+from utils.threadmanagement.redisdbutils import redisdbutils
 
 # Import A2A executors
 from workflowcomponents.conversationagentexecutor import ConversationAgentA2AExecutor
@@ -163,6 +163,24 @@ def _split_top_level_literals(result_text: str) -> list[str]:
                 start_index = None
 
     return literals
+
+
+def _extract_chat_response_text(final_data: Any) -> str | None:
+    """Return the user-visible Aggregator response text from workflow output."""
+    if not final_data:
+        return None
+
+    items = final_data if isinstance(final_data, list) else [final_data]
+    for item in items:
+        if not isinstance(item, dict) or item.get("source") != "Aggregator":
+            continue
+        response = item.get("response")
+        if response is None:
+            return None
+        return response if isinstance(response, str) else str(response)
+
+    return None
+
 
 async def orchestrate_a2a(query: str,
                           conversation_agent_url: str = "http://localhost:8000",
@@ -337,6 +355,19 @@ async def orchestrate_a2a(query: str,
             except Exception as e:
                 print(f"Error saving thread state: {e}")
                 logger.warning("Error saving thread state: %s", e)
+
+        assistant_text = _extract_chat_response_text(final_data)
+        if assistant_text:
+            try:
+                print(f"Appending ChatState turn for session {thread_id}...")
+                await db_utils.append_chat_turn(thread_id, query, assistant_text)
+                print("ChatState turn appended.")
+            except Exception as e:
+                print(f"Error appending ChatState turn: {e}")
+                logger.warning("Error appending ChatState turn: %s", e)
+        else:
+            logger.info("No Aggregator response found for ChatState append session_id=%s", thread_id)
+
         # Add thread_id to response
         if final_data and isinstance(final_data, list):
             final_data.append({"thread_id": thread_id})

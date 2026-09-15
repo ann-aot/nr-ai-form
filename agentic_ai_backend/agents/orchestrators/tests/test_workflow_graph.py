@@ -8,7 +8,7 @@ from agent_framework._workflows._message_utils import normalize_messages_input
 
 from clientprofiles import ConversationAgentSettings, FormSupportAgentSettings
 from models.intentmodel import EdgeCaseCategory, IntentListModel, IntentModel
-from orchestratoragent import _select_target_executors
+from orchestratoragent import _extract_chat_response_text, _select_target_executors
 from workflowcomponents.aggregator import Aggregator
 from workflowcomponents.conversationagentexecutor import ConversationAgentA2AExecutor
 from workflowcomponents.dispatcher import Dispatcher
@@ -204,6 +204,26 @@ class AggregatorGracefulDeclineTests(unittest.TestCase):
 
 
 class WorkflowGraphTests(unittest.TestCase):
+    def test_extract_chat_response_text_returns_aggregator_response(self):
+        final_data = [
+            {
+                "source": "Aggregator",
+                "response": "Final answer.",
+                "original_results": [{"source": "ConversationAgentA2A", "response": "Raw output."}],
+            },
+            {"thread_id": "client:session-1"},
+        ]
+
+        self.assertEqual(_extract_chat_response_text(final_data), "Final answer.")
+
+    def test_extract_chat_response_text_ignores_non_aggregator_results(self):
+        final_data = [
+            {"source": "ConversationAgentA2A", "response": "Raw output."},
+            {"thread_id": "client:session-1"},
+        ]
+
+        self.assertIsNone(_extract_chat_response_text(final_data))
+
     def test_select_subagents_returns_all_intents_at_or_above_threshold(self):
         # HIGH_CONFIDENCE_THRESHOLD is 7.0 and routing.select_subagents uses
         # `>=`, so a confidence exactly at the threshold is included, not
