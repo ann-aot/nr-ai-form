@@ -101,7 +101,22 @@ export const WELCOME_PANEL_STYLES = `
 
         .wp-welcome-heading {
             display: block;
+            margin-bottom: 8px;
             font-weight: 700;
+        }
+
+        /* Same ExtJS reset as the chat bubble lists (see chatMarkdownStyles.js):
+           list-style is cleared on every li, so the marker is restated on both. */
+        .wp-welcome-list {
+            margin: 8px 0 0;
+            padding-left: 20px;
+            list-style: disc outside;
+        }
+
+        .wp-welcome-list li {
+            margin: 0;
+            display: list-item;
+            list-style: disc outside;
         }
 
         /* Link + trailing external-link glyph */

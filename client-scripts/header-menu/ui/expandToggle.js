@@ -7,10 +7,55 @@
  *
  * Which icon shows is also driven by that class rather than by swapping markup, so
  * the button can never disagree with the window it controls.
+ *
+ * The chosen size outlives the page it was chosen on, which is the only reason this
+ * module touches storage at all - see the key below.
  */
 
 /** Class the modal wears while expanded. Sizing for it lives in client.js. */
 export const EXPANDED_MODAL_CLASS = 'wp-chat-modal-expanded';
+
+/**
+ * Where the chosen size is kept, per window.
+ *
+ * The class alone only lasts as long as the page does, and a Posse page is short
+ * lived: selecting a value posts the form back and rebuilds the widget from scratch,
+ * so a window the user had enlarged came back at its default size several times over
+ * while they worked through a step. Every other thing the user chose about the chat -
+ * open or closed, where it sits, what was said - already survives that, and size was
+ * the one piece that did not.
+ *
+ * The scope is in the key rather than beside it because a popup inherits its opener's
+ * sessionStorage as it is created. Sharing one key would open every sub-form window
+ * expanded to `calc(100vh - 60px)` by 680px, which in a window the form opens at
+ * around 700px wide is very nearly all of it - the assistant covering the form it was
+ * opened to help with. The form window never writes the popup's key, so a popup
+ * starts at its default size and keeps whatever the user then chooses there.
+ */
+const EXPANDED_STATE_KEY_PREFIX = 'nrAiForm_chatExpanded';
+
+function expandedStateKey(scope) {
+    return `${EXPANDED_STATE_KEY_PREFIX}_${scope}`;
+}
+
+function wasExpanded(scope) {
+    try {
+        return sessionStorage.getItem(expandedStateKey(scope)) === '1';
+    } catch {
+        // Storage blocked (private mode, cookie policy). The default size is the
+        // milder failure: the user re-expands, rather than meeting a window that
+        // fills the screen for reasons they cannot undo.
+        return false;
+    }
+}
+
+function saveExpanded(scope, expanded) {
+    try {
+        sessionStorage.setItem(expandedStateKey(scope), expanded ? '1' : '0');
+    } catch {
+        // Nothing to do - the size holds until the next postback, as it used to.
+    }
+}
 
 // Material fullscreen / fullscreen_exit - corner arrows, matching the design frames.
 // They share the header's 20px icon size and take their colour from the button, so
@@ -30,9 +75,11 @@ export function buildExpandToggleHtml() {
  * @param {object} options
  * @param {HTMLElement} options.root - element containing the toggle markup
  * @param {HTMLElement} options.modal - the `.wp-chat-modal` element to resize
+ * @param {string} [options.scope] - which window's chosen size this is, so a popup
+ *   does not open at a size picked for the form window behind it
  * @returns {{ isExpanded: () => boolean, collapse: () => void }}
  */
-export function createExpandToggle({ root, modal }) {
+export function createExpandToggle({ root, modal, scope = 'form' }) {
     const button = root ? root.querySelector('#wp-chat-expand-button') : null;
     if (!button || !modal) {
         return { isExpanded: () => false, collapse: () => {} };
@@ -52,13 +99,20 @@ export function createExpandToggle({ root, modal }) {
 
     function collapse() {
         modal.classList.remove(EXPANDED_MODAL_CLASS);
+        saveExpanded(scope, false);
         sync();
     }
 
     button.addEventListener('click', () => {
         modal.classList.toggle(EXPANDED_MODAL_CLASS);
+        saveExpanded(scope, isExpanded());
         sync();
     });
+
+    // Restored here rather than on open, because this runs while the modal is still
+    // display: none - so a window the user had enlarged is never painted at its
+    // default size first and caught resizing itself afterwards.
+    if (wasExpanded(scope)) modal.classList.add(EXPANDED_MODAL_CLASS);
 
     sync();
 

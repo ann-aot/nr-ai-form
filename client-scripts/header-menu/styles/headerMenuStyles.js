@@ -72,10 +72,9 @@ export const HEADER_MENU_STYLES = `
             right: 0;
             z-index: 1;
             /* The card hugs its longest row. The design's 168px is deliberately not
-               a floor here: with the short "About AIFA" label nothing reaches that
-               width, so a minimum would only show as dead space to the right of
-               every row. Sizing to content keeps the card correct whichever way the
-               labels change. */
+               a floor here: with short labels a minimum would only show as dead
+               space to the right of every row. Sizing to content keeps the card
+               correct whichever way the labels change. */
             width: max-content;
             /* A ceiling in absolute units, not a percentage: the positioning parent
                is only as wide as the 32px button, so a percentage would collapse the

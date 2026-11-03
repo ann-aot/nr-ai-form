@@ -17,15 +17,21 @@ export const WELCOME_PANEL_CONTENT = {
     sections: [
         {
             heading: 'How I can help',
-            body: 'I can explain questions, provide plain-language guidance, and share tips to help you complete your application.'
+            body: 'I can:',
+            // Optional: rendered as a bulleted list under the body.
+            items: [
+                'Explain questions',
+                'Provide plain-language guidance',
+                'Share tips to help complete your application'
+            ]
         },
         {
             heading: 'Important',
-            body: "I'm a support tool and do not replace professional advice. Please review your application to ensure the information you submit is accurate and complete."
+            body: "I’m a support tool and don't replace professional advice. Review your application before you submit."
         },
         {
             heading: 'Protect your privacy',
-            body: 'Do not enter personal information (e.g. Social Insurance Number, financial details). Questions may be used to improve the service.'
+            body: "Don't enter personal information like financial details. Questions may be used to improve the service."
         }
     ],
     // No `link` here on purpose - the panel renders one only when content supplies it.
@@ -56,7 +62,7 @@ export const WELCOME_PANEL_CONTENT = {
             query: `What is ${PRODUCT_NAME} and what can it do for me?`,
             response: [
                 `**About ${PRODUCT_NAME}**\n${PRODUCT_NAME} provides plain-language explanations and guidance to help you understand questions and prepare information for a new water licence application.`,
-                'It is designed to support surface water livestock and animal and irrigation applications. Guidance for other application types may be limited.',
+                'It supports surface water applications for livestock and animal watering, and irrigation. Guidance for other application types may be limited.',
                 `${PRODUCT_NAME} supports understanding and drafting only. You are responsible for reviewing and confirming that your application information is accurate and complete.`
             ].join('\n\n')
         },
@@ -65,8 +71,12 @@ export const WELCOME_PANEL_CONTENT = {
             label: 'Data Privacy',
             query: 'How is the information I enter into this assistant used and protected?',
             response: [
-                `**How is your data handled**\n${PRODUCT_NAME} uses the information you enter only to provide guidance during your current session. Your chat session ends when your form session ends, and ${PRODUCT_NAME} does not store or reuse your personal information.`,
-                `Any technical data collected by ${PRODUCT_NAME} (e.g. browser type or questions asked) is handled under the [Freedom of Information and Protection of Privacy Act](https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/96165_00) (FOIPPA). To learn more about how the Province protects your privacy, visit the [B.C. Government Website Privacy Statement](https://www2.gov.bc.ca/gov/content/home/privacy).`
+                `**How is your information handled**\n${PRODUCT_NAME} uses the information you provide to give guidance during your session. It does not store or reuse the information.`,
+                'Your chat session ends when your form session ends. Technical data is collected under the [Freedom of Information and Protection of Privacy Act](https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/96165_00).',
+                [
+                    'Learn more:',
+                    '- [B.C. Government website privacy statement](https://www2.gov.bc.ca/gov/content/home/privacy)'
+                ].join('\n')
             ].join('\n\n')
         },
         {
@@ -82,12 +92,12 @@ export const WELCOME_PANEL_CONTENT = {
                     "- Ask questions related to the step you're on",
                     "- Describe what you're planning to do in your own words",
                     '- Share details such as water source, purpose, and timing',
-                    '- Ask complete and specific questions about the application form',
-                    '- Include all relevant information in your message rather than splitting information across multiple questions'
+                    '- Ask clear and specific questions about the application form',
+                    '- Ask one question with all the details instead of multiple questions'
                 ].join('\n'),
                 [
                     `**What ${PRODUCT_NAME} can do**`,
-                    '- Explain water licence terms and questions',
+                    '- Explain water licence terms and answer questions',
                     '- Help draft your water use plan for review',
                     '- Support pilot scenarios, including surface water livestock and animal watering, with basic calculations'
                 ].join('\n'),
@@ -121,12 +131,20 @@ function escapeHtml(value) {
  * modal's innerHTML template alongside the rest of the chat shell.
  */
 export function buildWelcomePanelHtml(content = WELCOME_PANEL_CONTENT) {
+    // A <ul> can't sit inside a <p>, so sections with list items use a <div>.
     const sections = (content.sections || [])
-        .map((section) => `
-                        <p class="wp-welcome-section">
+        .map((section) => {
+            const items = section.items && section.items.length
+                ? `
+                            <ul class="wp-welcome-list">${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+                : '';
+            const tag = items ? 'div' : 'p';
+            return `
+                        <${tag} class="wp-welcome-section">
                             <span class="wp-welcome-heading">${escapeHtml(section.heading)}</span>
-                            ${escapeHtml(section.body)}
-                        </p>`)
+                            ${escapeHtml(section.body)}${items}
+                        </${tag}>`;
+        })
         .join('');
 
     const link = content.link
