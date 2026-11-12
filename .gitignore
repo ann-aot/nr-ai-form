@@ -63,3 +63,7 @@ npm-debug.log*
 Thumbs.db
 *.swp
 *~
+
+
+agentic_ai_backend
+agentic_ai_backend/*
