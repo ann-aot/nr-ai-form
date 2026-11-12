@@ -93,7 +93,6 @@ const clientId = '11111111-1111-4111-8111-111111111111';
 // dev
 // const API_BACKEND_BASE_URL = 'https://nraif-671b-dev-commonservi-api.livelymushroom-b9ecaae0.canadacentral.azurecontainerapps.io';
 const API_BACKEND_BASE_URL = 'https://nr-ai-form-prod-api-fd-bpf6chbhdhf6c5gd.a03.azurefd.net';
- 
 // test
 // const API_BACKEND_BASE_URL = 'https://nraif-671b-test-api.redground-c9aa9e63.canadacentral.azurecontainerapps.io'
 
