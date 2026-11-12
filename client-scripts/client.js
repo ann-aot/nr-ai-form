@@ -86,7 +86,7 @@ import { formatMessage, formatMessageBlocks } from './chat-markdown/utils/markdo
 
 //     (function () {
 
-const clientId = '11111111-1111-4111-8111-111111111111';
+const clientId = '7a1c0271-557f-158f-2bb9-8921d1239e82';
 // TEST: const API_BACKEND_BASE_URL = 'https://nraif-671b-test-api.ambitiousmeadow-949bd8c6.canadacentral.azurecontainerapps.io';
 // DEV : const API_BACKEND_BASE_URL = 'https://nraif-671b-dev-api.icymushroom-bc5ec66d.canadacentral.azurecontainerapps.io';
 // const API_BACKEND_BASE_URL = 'http://localhost:8003';
